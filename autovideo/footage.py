@@ -3,6 +3,8 @@
 Dùng Pexels nếu có PEXELS_API_KEY, nếu không thì dùng Pixabay (PIXABAY_API_KEY).
 Video khác khổ cũng được: render.py tự crop về khổ đã chọn.
 """
+import time
+
 import requests
 
 import config
@@ -103,11 +105,20 @@ def fetch_clip(keywords: str, dest, used_ids: set) -> bool:
     source = "Pexels" if config.PEXELS_API_KEY else "Pixabay"
     queries = [keywords, keywords.split()[0], "abstract background"]
     for q in queries:
-        try:
-            results = _search(q)
-        except requests.RequestException as e:
-            print(f"   ! Lỗi {source}: {e}")
-            return False
+        results = None
+        for attempt in range(4):  # bị giới hạn tốc độ (429) thì chờ rồi thử lại
+            try:
+                results = _search(q)
+                break
+            except requests.RequestException as e:
+                status = getattr(e.response, "status_code", None)
+                if status == 429 and attempt < 3:
+                    wait = 15 * (attempt + 1)
+                    print(f"   ! {source} giới hạn tốc độ, chờ {wait}s rồi thử lại...")
+                    time.sleep(wait)
+                    continue
+                print(f"   ! Lỗi {source}: {status or type(e).__name__}")
+                return False
         for vid, link in results:
             if vid in used_ids:
                 continue

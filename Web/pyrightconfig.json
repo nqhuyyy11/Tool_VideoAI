@@ -1,0 +1,5 @@
+{
+  "extraPaths": ["../autovideo"],
+  "venvPath": ".",
+  "venv": ".venv"
+}

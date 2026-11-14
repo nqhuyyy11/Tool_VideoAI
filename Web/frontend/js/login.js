@@ -8,6 +8,8 @@ const notice = document.getElementById('notice');
 const tabLogin = document.getElementById('tab-login');
 const tabSignup = document.getElementById('tab-signup');
 const passwordInput = document.getElementById('password');
+const confirmWrap = document.getElementById('confirm-wrap');
+const confirmInput = document.getElementById('confirm');
 
 function setMode(next) {
   mode = next;
@@ -15,6 +17,9 @@ function setMode(next) {
   tabSignup.setAttribute('aria-selected', String(mode === 'signup'));
   submitBtn.textContent = mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản';
   passwordInput.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  confirmWrap.hidden = mode === 'login';
+  confirmInput.required = mode === 'signup';
+  confirmInput.value = '';
   showPageError('');
   notice.hidden = true;
 }
@@ -38,10 +43,14 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   showPageError('');
   notice.hidden = true;
-  submitBtn.disabled = true;
 
   const email = document.getElementById('email').value.trim();
   const password = passwordInput.value;
+  if (mode === 'signup' && password !== confirmInput.value) {
+    showPageError('Mật khẩu nhập lại không khớp.');
+    return;
+  }
+  submitBtn.disabled = true;
 
   try {
     const client = await initSupabase();
