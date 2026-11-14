@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tạo video - AutoVideo</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">AutoVideo</a>
+    <nav class="nav">
+      <a href="/" aria-current="page">Tạo video</a>
+      <a href="/library.html">Thư viện</a>
+    </nav>
+    <button type="button" id="logout" class="btn btn-plain">Đăng xuất</button>
+  </header>
+
+  <main class="container">
+    <p id="page-error" class="error-text" role="alert" hidden></p>
+
+    <!-- 1. Form tạo video -->
+    <form id="view-form" class="card stack" hidden>
+      <div class="stack-sm">
+        <h1>Tạo video mới</h1>
+        <p class="muted small">Nhập chủ đề, AI sẽ viết kịch bản, đọc lời, ghép video nền và phụ đề.</p>
+      </div>
+
+      <label>Chủ đề
+        <textarea id="topic" maxlength="300" required
+          placeholder="Ví dụ: Vì sao bầu trời có màu xanh?"></textarea>
+      </label>
+
+      <fieldset>
+        <legend>Khổ video</legend>
+        <div class="choices three">
+          <label class="choice">
+            <input type="radio" name="format" value="vertical" checked>
+            <div class="choice-box">
+              <div class="ratio-wrap"><div class="ratio vertical"></div></div>
+              <strong>Dọc 9:16</strong>
+              <span>TikTok, Reels, Shorts</span>
+            </div>
+          </label>
+          <label class="choice">
+            <input type="radio" name="format" value="horizontal">
+            <div class="choice-box">
+              <div class="ratio-wrap"><div class="ratio horizontal"></div></div>
+              <strong>Ngang 16:9</strong>
+              <span>YouTube</span>
+            </div>
+          </label>
+          <label class="choice">
+            <input type="radio" name="format" value="square">
+            <div class="choice-box">
+              <div class="ratio-wrap"><div class="ratio square"></div></div>
+              <strong>Vuông 1:1</strong>
+              <span>Facebook, Instagram</span>
+            </div>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Giọng đọc</legend>
+        <div class="choices two">
+          <label class="choice">
+            <input type="radio" name="voice" value="vi-VN-HoaiMyNeural" checked>
+            <div class="choice-box"><strong>Nữ</strong><span>Hoài My</span></div>
+          </label>
+          <label class="choice">
+            <input type="radio" name="voice" value="vi-VN-NamMinhNeural">
+            <div class="choice-box"><strong>Nam</strong><span>Nam Minh</span></div>
+          </label>
+        </div>
+      </fieldset>
+
+      <label>Tốc độ đọc
+        <select id="rate">
+          <option value="-10%">Chậm</option>
+          <option value="+0%">Bình thường</option>
+          <option value="+10%" selected>Hơi nhanh (khuyên dùng)</option>
+          <option value="+20%">Nhanh</option>
+        </select>
+      </label>
+
+      <p id="form-error" class="error-text" role="alert" hidden></p>
+      <button type="submit" id="create-btn" class="btn btn-primary btn-block">Tạo video</button>
+    </form>
+
+    <!-- 2. Tiến độ -->
+    <section id="view-progress" class="card stack" hidden>
+      <div class="stack-sm">
+        <h1 id="progress-title">Đang tạo video</h1>
+        <p id="progress-topic" class="muted small"></p>
+      </div>
+
+      <ol class="steps" id="steps">
+        <li data-step="scripting"><span class="dot"></span>Viết kịch bản</li>
+        <li data-step="voicing"><span class="dot"></span>Tạo giọng đọc</li>
+        <li data-step="fetching_footage"><span class="dot"></span>Tải video nền</li>
+        <li data-step="rendering"><span class="dot"></span>Ghép video và phụ đề</li>
+        <li data-step="uploading"><span class="dot"></span>Nén và lưu video</li>
+      </ol>
+
+      <div class="stack-sm">
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-row">
+          <span id="progress-message" class="muted" role="status"></span>
+          <span id="progress-percent" class="percent muted">0%</span>
+        </div>
+      </div>
+
+      <div id="fail-box" class="stack" hidden>
+        <p id="fail-message" class="error-text" role="alert"></p>
+        <div class="actions">
+          <button type="button" id="retry-btn" class="btn btn-primary">Thử lại</button>
+          <button type="button" id="discard-btn" class="btn">Tạo video khác</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Kết quả -->
+    <section id="view-result" class="card stack" hidden>
+      <h1 id="result-title"></h1>
+      <video id="result-video" class="player" controls playsinline preload="metadata"></video>
+      <div class="actions">
+        <a id="result-download" class="btn btn-primary" href="#">Tải MP4</a>
+        <button type="button" id="again-btn" class="btn">Tạo video khác</button>
+      </div>
+      <div class="stack-sm">
+        <label for="result-caption">Caption và hashtag để đăng bài</label>
+        <textarea id="result-caption" class="caption-box" readonly></textarea>
+        <button type="button" id="copy-btn" class="btn">Copy caption</button>
+      </div>
+      <p class="muted small">Video đã được lưu trong <a href="/library.html">Thư viện</a>.</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/create.js"></script>
+</body>
+</html>

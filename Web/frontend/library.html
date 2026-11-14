@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thư viện - AutoVideo</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">AutoVideo</a>
+    <nav class="nav">
+      <a href="/">Tạo video</a>
+      <a href="/library.html" aria-current="page">Thư viện</a>
+    </nav>
+    <button type="button" id="logout" class="btn btn-plain">Đăng xuất</button>
+  </header>
+
+  <main class="container wide">
+    <div class="page-head">
+      <h1>Thư viện</h1>
+      <span id="count" class="muted small"></span>
+    </div>
+
+    <p id="page-error" class="error-text" role="alert" hidden></p>
+    <p id="loading" class="muted">Đang tải…</p>
+
+    <div id="empty" class="card empty stack" hidden>
+      <p class="muted">Bạn chưa có video nào.</p>
+      <p><a href="/">Tạo video đầu tiên</a></p>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <!-- Khung xem lại 1 video -->
+  <dialog id="viewer" aria-labelledby="viewer-title">
+    <div class="stack">
+      <div class="dialog-head">
+        <h2 id="viewer-title"></h2>
+        <button type="button" id="viewer-close" class="btn btn-plain">Đóng</button>
+      </div>
+      <video id="viewer-video" class="player" controls playsinline preload="metadata"></video>
+      <div class="actions">
+        <a id="viewer-download" class="btn btn-primary" href="#">Tải MP4</a>
+        <button type="button" id="viewer-copy" class="btn">Copy caption</button>
+        <button type="button" id="viewer-delete" class="btn">Xoá</button>
+      </div>
+      <p id="viewer-error" class="error-text" role="alert" hidden></p>
+      <p id="viewer-meta" class="muted small"></p>
+    </div>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/library.js"></script>
+</body>
+</html>

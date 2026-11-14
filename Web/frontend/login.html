@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập - AutoVideo</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="auth-wrap stack">
+    <div class="stack-sm">
+      <h1>AutoVideo</h1>
+      <p class="muted">Tạo video ngắn tự động bằng AI.</p>
+    </div>
+
+    <form id="auth-form" class="card stack">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" id="tab-login" aria-selected="true">Đăng nhập</button>
+        <button type="button" class="tab" role="tab" id="tab-signup" aria-selected="false">Đăng ký</button>
+      </div>
+
+      <label>Email
+        <input type="email" id="email" autocomplete="email" required>
+      </label>
+      <label>Mật khẩu
+        <input type="password" id="password" autocomplete="current-password" minlength="6" required>
+      </label>
+
+      <p id="page-error" class="error-text" role="alert" hidden></p>
+      <p id="notice" class="small" role="status" hidden></p>
+
+      <button type="submit" id="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>
