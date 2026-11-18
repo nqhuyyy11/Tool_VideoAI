@@ -277,8 +277,8 @@ dialog::backdrop { background: rgba(15, 15, 18, 0.8); }
 }
 .tab[aria-selected="true"] { background: var(--card); color: var(--text); }
 
-/* Nền trang đăng nhập: gradient + các quầng sáng chuyển động nhẹ */
-.auth-page {
+/* Giao diện chung: nền gradient + quầng sáng, thẻ kính mờ, chữ/nút gradient */
+body {
   min-height: 100vh;
   background:
     radial-gradient(1200px 700px at 15% -10%, rgba(124, 92, 255, 0.35), transparent 60%),
@@ -288,41 +288,84 @@ dialog::backdrop { background: rgba(15, 15, 18, 0.8); }
   position: relative;
   overflow-x: hidden;
 }
+body::before, body::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.4;
+  pointer-events: none;
+  animation: float 14s ease-in-out infinite alternate;
+}
+body::before { width: 420px; height: 420px; background: #7C5CFF; top: 8%; left: 6%; }
+body::after { width: 360px; height: 360px; background: #2f7bff; bottom: 5%; right: 6%; animation-delay: -6s; }
 .auth-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .auth-bg i {
   position: absolute;
+  width: 260px; height: 260px;
+  top: 55%; left: 40%;
   border-radius: 50%;
+  background: #e052c2;
   filter: blur(80px);
-  opacity: 0.55;
+  opacity: 0.25;
   animation: float 14s ease-in-out infinite alternate;
+  animation-delay: -9s;
 }
-.auth-bg i:nth-child(1) { width: 420px; height: 420px; background: #7C5CFF; top: 8%; left: 8%; }
-.auth-bg i:nth-child(2) { width: 360px; height: 360px; background: #2f7bff; bottom: 5%; right: 8%; animation-delay: -5s; }
-.auth-bg i:nth-child(3) { width: 260px; height: 260px; background: #e052c2; top: 55%; left: 40%; opacity: 0.3; animation-delay: -9s; }
+.auth-bg i:nth-child(n+2) { display: none; }
 @keyframes float {
   from { transform: translate(0, 0) scale(1); }
   to { transform: translate(60px, -40px) scale(1.15); }
 }
-.auth-page .auth-wrap { position: relative; z-index: 1; padding-top: 12vh; }
-.auth-page .card {
+.topbar, .container, .auth-wrap { position: relative; z-index: 1; }
+.auth-wrap { padding-top: 12vh; }
+
+.topbar {
+  background: rgba(15, 15, 18, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.brand {
+  background: linear-gradient(90deg, #fff, #b9a8ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nav a[aria-current="page"] { background: rgba(124, 92, 255, 0.25); }
+
+.card {
   background: rgba(28, 28, 34, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
-.auth-page h1 {
-  font-size: 30px;
+h1 {
   background: linear-gradient(90deg, #fff, #b9a8ff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.auth-page .tab[aria-selected="true"] { background: rgba(124, 92, 255, 0.25); }
-.auth-page .btn-primary { background: linear-gradient(90deg, #7C5CFF, #5b8cff); border-color: transparent; }
+.auth-wrap h1 { font-size: 30px; }
+.tab[aria-selected="true"] { background: rgba(124, 92, 255, 0.25); }
+.btn-primary { background: linear-gradient(90deg, #7C5CFF, #5b8cff); border-color: transparent; }
+.btn-primary:hover { border-color: transparent; }
+.choice-box { background: rgba(15, 15, 18, 0.55); transition: border-color .15s, background .15s, transform .15s; }
+.choice:hover .choice-box { border-color: var(--muted); transform: translateY(-2px); }
+.choice input:checked + .choice-box {
+  border-color: var(--accent);
+  background: rgba(124, 92, 255, 0.18);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(124, 92, 255, 0.25);
+}
+.progress-bar { background: linear-gradient(90deg, #7C5CFF, #5b8cff); }
+.video-card { background: rgba(28, 28, 34, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); transition: transform .15s, box-shadow .15s; }
+.video-card:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5); }
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-bg i { animation: none; }
+  body::before, body::after, .auth-bg i { animation: none; }
 }
 
 /* ---------- Điện thoại ---------- */

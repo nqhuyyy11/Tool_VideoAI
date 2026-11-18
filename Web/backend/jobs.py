@@ -30,6 +30,7 @@ class Job:
     video_format: str
     voice: str
     rate: str
+    script: dict | None = None  # kịch bản người dùng tự đưa (bỏ qua bước AI viết)
     status: str = "queued"
     step: str = "queued"  # bước gần nhất đã chạy tới (để biết lỗi ở bước nào)
     percent: int = 0
@@ -64,7 +65,8 @@ def _prune():
             _remove_work(job.id)
 
 
-def create(user_id: str, topic: str, video_format: str, voice: str, rate: str) -> Job:
+def create(user_id: str, topic: str, video_format: str, voice: str, rate: str,
+           script: dict | None = None) -> Job:
     with _lock:
         _prune()
         for job in list(_jobs.values()):
@@ -76,7 +78,7 @@ def create(user_id: str, topic: str, video_format: str, voice: str, rate: str) -
                 del _jobs[job.id]
                 _remove_work(job.id)
         job = Job(id=uuid.uuid4().hex, user_id=user_id, topic=topic,
-                  video_format=video_format, voice=voice, rate=rate)
+                  video_format=video_format, voice=voice, rate=rate, script=script)
         _jobs[job.id] = job
     _queue.put(job.id)
     return job

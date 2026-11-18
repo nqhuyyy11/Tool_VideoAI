@@ -4,6 +4,19 @@ Trang web để dùng tool AutoVideo bằng giao diện: nhập chủ đề, b�
 
 Làm lần lượt từ Bước 1 đến Bước 7 là mở được web trên máy mình.
 
+## Chạy nhanh
+
+Dành cho khi đã cài xong (đã có `.env`, `.venv`, đã chạy `schema.sql`). Mỗi lần muốn dùng web:
+
+```powershell
+cd e:\MyTool\Tool_VideoAI\Web
+.\.venv\Scripts\python.exe -m uvicorn backend.app:app --port 8000
+```
+
+Mở http://localhost:8000, đăng nhập rồi dùng. Tắt bằng `Ctrl + C`. Sửa code backend thì thêm `--reload` để server tự khởi động lại.
+
+Chưa cài lần nào thì làm từ Bước 1 bên dưới. Không cần chạy file riêng cho giao diện: backend đã phục vụ luôn thư mục `frontend`.
+
 ## Cấu trúc thư mục
 
 ```

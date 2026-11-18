@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import jobs, settings, storage
+from . import jobs, script_md, settings, storage
 from .auth import current_user
 from .errors import UserError
 
@@ -44,6 +44,14 @@ async def supabase_problem(request, exc):
     return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
+@app.middleware("http")
+async def no_stale_frontend(request, call_next):
+    # Trình duyệt luôn hỏi lại server, tránh dùng bản JS/CSS cũ sau khi sửa giao diện
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 # ---------- Cấu hình cho trình duyệt ----------
 @app.get("/api/config")
 def get_config():
@@ -57,10 +65,11 @@ def get_config():
 
 # ---------- Job tạo video ----------
 class JobInput(BaseModel):
-    topic: str = Field(min_length=3, max_length=300)
+    topic: str = Field(default="", max_length=300)  # có thể trống nếu đính kèm kịch bản
     format: Literal["vertical", "horizontal", "square"] = "vertical"
     voice: Literal["vi-VN-HoaiMyNeural", "vi-VN-NamMinhNeural"] = "vi-VN-HoaiMyNeural"
     rate: str = Field(default="+10%", pattern=r"^[+-]\d{1,2}%$")
+    script_md: str | None = Field(default=None, max_length=50000)  # nội dung file .md đính kèm
 
     @field_validator("topic", mode="before")
     @classmethod
@@ -77,8 +86,19 @@ def _job_or_404(job_id: str, user: dict) -> jobs.Job:
 
 @app.post("/api/jobs")
 def create_job(data: JobInput, user: dict = Depends(current_user)):
+    script = None
+    if data.script_md and data.script_md.strip():
+        try:
+            script = script_md.parse(data.script_md)
+        except UserError as e:
+            raise HTTPException(422, str(e))
+    topic = data.topic or (str(script.get("title") or "") if script else "")
+    if script and not topic:
+        topic = "Kịch bản đính kèm"
+    if not script and len(topic) < 3:
+        raise HTTPException(422, "Chủ đề cần dài từ 3 đến 300 ký tự, hoặc hãy đính kèm file kịch bản.")
     try:
-        job = jobs.create(user["id"], data.topic, data.format, data.voice, data.rate)
+        job = jobs.create(user["id"], topic,data.format, data.voice, data.rate, script)
     except jobs.Busy:
         raise HTTPException(409, "Bạn đang có một video chưa tạo xong. Hãy chờ video đó xong đã.")
     return jobs.public(job)

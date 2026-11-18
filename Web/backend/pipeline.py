@@ -52,12 +52,13 @@ def run(job, report) -> dict:
     config.TTS_RATE = job.rate
 
     # ----- Bước 1: kịch bản -----
-    report("scripting", 2, "AI đang viết kịch bản…")
+    report("scripting", 2, "Đang đọc kịch bản…" if job.script else "AI đang viết kịch bản…")
     script_file = work / "script.json"
     if script_file.exists():
         script = _read_json(script_file)
     else:
-        script = script_gen.generate_script(job.topic)
+        script = (script_gen.validate(job.script) if job.script
+                  else script_gen.generate_script(job.topic))
         _write_json(script_file, script)
     scenes = script["scenes"]
     n = len(scenes)
@@ -129,7 +130,7 @@ def run(job, report) -> dict:
     caption = "\n\n".join(p for p in (title, str(script.get("caption") or ""), hashtags) if p)
     video = storage.save_video(
         user_id=job.user_id, title=title, prompt=job.topic, caption=caption,
-        source=final, work=work, landscape=config.WIDTH > config.HEIGHT)
+        source=final, work=work, landscape=job.video_format == "horizontal")
 
     shutil.rmtree(work, ignore_errors=True)
     return video

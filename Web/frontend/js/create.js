@@ -98,11 +98,25 @@ function resetToForm() {
 }
 
 // ---------- Sự kiện ----------
+const scriptFile = document.getElementById('script-file');
+const scriptInfo = document.getElementById('script-file-info');
+
+function showScriptInfo() {
+  const file = scriptFile.files[0];
+  scriptInfo.hidden = !file;
+  if (file) scriptInfo.textContent = '✓ Đã chọn: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+}
+scriptFile.addEventListener('change', showScriptInfo);
+
 views.form.addEventListener('submit', async (event) => {
   event.preventDefault();
   formError.hidden = true;
   createBtn.disabled = true;
   try {
+    const file = scriptFile.files[0];
+    if (file && file.size > 50000) throw new Error('File kịch bản quá lớn (tối đa 50 KB).');
+    const topicBox = document.getElementById('topic');
+    if (file && topicBox.value.trim().length < 3) topicBox.value = file.name.replace(/\.\w+$/, '');
     const job = await api('/api/jobs', {
       method: 'POST',
       body: JSON.stringify({
@@ -110,6 +124,7 @@ views.form.addEventListener('submit', async (event) => {
         format: document.querySelector('input[name="format"]:checked').value,
         voice: document.querySelector('input[name="voice"]:checked').value,
         rate: document.getElementById('rate').value,
+        script_md: file ? await file.text() : null,
       }),
     });
     renderJob(job);
@@ -144,6 +159,8 @@ document.getElementById('discard-btn').addEventListener('click', async () => {
 document.getElementById('again-btn').addEventListener('click', () => {
   document.getElementById('result-video').pause();
   document.getElementById('topic').value = '';
+  scriptFile.value = '';
+  showScriptInfo();
   resetToForm();
 });
 

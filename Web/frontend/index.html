@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tạo video - AutoVideo</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
 </head>
+
 <body>
   <header class="topbar">
     <a class="brand" href="/">AutoVideo</a>
@@ -28,8 +30,15 @@
       </div>
 
       <label>Chủ đề
-        <textarea id="topic" maxlength="300" required
-          placeholder="Ví dụ: Vì sao bầu trời có màu xanh?"></textarea>
+        <textarea id="topic" maxlength="300" placeholder="Ví dụ: Vì sao bầu trời có màu xanh?"></textarea>
+      </label>
+
+      <label>Hoặc đính kèm kịch bản (.md, tuỳ chọn)
+        <input type="file" id="script-file" accept=".md,.markdown,.txt" style="display:block;width:100%">
+        <strong id="script-file-info" class="small" style="display:block" hidden></strong>
+        <span class="muted small" style="display:block">Mỗi dòng là một cảnh, dạng
+          <code>Câu thoại | english keywords</code>.
+          Dòng <code># Tiêu đề</code> đặt tên video. Có file thì AI không viết kịch bản nữa.</span>
       </label>
 
       <fieldset>
@@ -38,7 +47,9 @@
           <label class="choice">
             <input type="radio" name="format" value="vertical" checked>
             <div class="choice-box">
-              <div class="ratio-wrap"><div class="ratio vertical"></div></div>
+              <div class="ratio-wrap">
+                <div class="ratio vertical"></div>
+              </div>
               <strong>Dọc 9:16</strong>
               <span>TikTok, Reels, Shorts</span>
             </div>
@@ -46,7 +57,9 @@
           <label class="choice">
             <input type="radio" name="format" value="horizontal">
             <div class="choice-box">
-              <div class="ratio-wrap"><div class="ratio horizontal"></div></div>
+              <div class="ratio-wrap">
+                <div class="ratio horizontal"></div>
+              </div>
               <strong>Ngang 16:9</strong>
               <span>YouTube</span>
             </div>
@@ -54,7 +67,9 @@
           <label class="choice">
             <input type="radio" name="format" value="square">
             <div class="choice-box">
-              <div class="ratio-wrap"><div class="ratio square"></div></div>
+              <div class="ratio-wrap">
+                <div class="ratio square"></div>
+              </div>
               <strong>Vuông 1:1</strong>
               <span>Facebook, Instagram</span>
             </div>
@@ -105,7 +120,8 @@
       </ol>
 
       <div class="stack-sm">
-        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+          id="progress-track">
           <div class="progress-bar" id="progress-bar"></div>
         </div>
         <div class="progress-row">
@@ -144,4 +160,5 @@
   <script src="/js/common.js"></script>
   <script src="/js/create.js"></script>
 </body>
+
 </html>
