@@ -207,3 +207,38 @@ def delete_video(user_id: str, video_id: str) -> bool:
     r = requests.delete(_table_url(), headers=_headers(), params=match, timeout=30)
     _check(r, "xoá video")
     return True
+
+
+# ---------- Dùng bởi Studio (ảnh / clip / nhạc của dự án) ----------
+def sign_paths(paths: list[str]) -> dict[str, str]:
+    return _sign(paths)
+
+
+def remove_paths(paths: list[str]):
+    _remove(paths)
+
+
+def put_file(path: str, file: Path, content_type: str):
+    _upload(path, file, content_type)
+
+
+def download(path: str, dest: Path):
+    """Tải 1 file trong bucket về máy chủ (dùng khi ghép video)."""
+    r = requests.get(_storage_url(f"{settings.SUPABASE_BUCKET}/{quote(path)}"),
+                     headers=_headers(), timeout=300, stream=True)
+    _check(r, "tải file")
+    with open(dest, "wb") as f:
+        for chunk in r.iter_content(1 << 20):
+            f.write(chunk)
+
+
+def table_url(table: str) -> str:
+    return f"{settings.SUPABASE_URL}/rest/v1/{table}"
+
+
+def headers(extra: dict | None = None) -> dict:
+    return _headers(extra)
+
+
+def check(r: requests.Response, action: str):
+    _check(r, action)

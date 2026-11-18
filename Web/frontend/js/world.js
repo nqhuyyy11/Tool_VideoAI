@@ -45,9 +45,10 @@ async function main() {
   const SPAWN = { x: 0, z: 9, heading: Math.PI };
   const SKY_FOG = 0xcfe3ff;
   const PADS = [
-    { id: 'create', label: 'Tạo video', href: '/', x: -17, z: -14, color: 0xff7a3d },
-    { id: 'library', label: 'Thư viện', href: '/library.html', x: 17, z: -14, color: 0x4fb8ff },
-    { id: 'logout', label: 'Đăng xuất', action: 'logout', x: 0, z: -29, color: 0xff6b8b },
+    { id: 'create', label: 'Tạo video', href: '/', x: -20, z: -12, color: 0xff7a3d },
+    { id: 'studio', label: 'Studio', href: '/studio.html', x: -8, z: -27, color: 0xb48cff },
+    { id: 'library', label: 'Thư viện', href: '/library.html', x: 20, z: -12, color: 0x4fb8ff },
+    { id: 'logout', label: 'Đăng xuất', action: 'logout', x: 8, z: -27, color: 0xff6b8b },
   ];
 
   function rng(seed) {

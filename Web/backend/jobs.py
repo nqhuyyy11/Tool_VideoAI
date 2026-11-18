@@ -31,6 +31,7 @@ class Job:
     voice: str
     rate: str
     script: dict | None = None  # kịch bản người dùng tự đưa (bỏ qua bước AI viết)
+    project: dict | None = None  # dự án Studio cần ghép (khi có thì bỏ qua pipeline AI viết kịch bản)
     status: str = "queued"
     step: str = "queued"  # bước gần nhất đã chạy tới (để biết lỗi ở bước nào)
     percent: int = 0
@@ -66,7 +67,7 @@ def _prune():
 
 
 def create(user_id: str, topic: str, video_format: str, voice: str, rate: str,
-           script: dict | None = None) -> Job:
+           script: dict | None = None, project: dict | None = None) -> Job:
     with _lock:
         _prune()
         for job in list(_jobs.values()):
@@ -78,7 +79,7 @@ def create(user_id: str, topic: str, video_format: str, voice: str, rate: str,
                 del _jobs[job.id]
                 _remove_work(job.id)
         job = Job(id=uuid.uuid4().hex, user_id=user_id, topic=topic,
-                  video_format=video_format, voice=voice, rate=rate, script=script)
+                  video_format=video_format, voice=voice, rate=rate, script=script, project=project)
         _jobs[job.id] = job
     _queue.put(job.id)
     return job
@@ -144,8 +145,12 @@ def _work_loop():
         try:
             # Nạp tool gốc ở đây: nếu sai AUTOVIDEO_DIR thì lỗi hiện lên web
             # thay vì làm dừng cả hàng đợi.
-            from . import pipeline
-            job.video = pipeline.run(job, job.report)
+            if job.project:
+                from . import studio
+                job.video = studio.compose(job, job.report)
+            else:
+                from . import pipeline
+                job.video = pipeline.run(job, job.report)
             job.status = "done"
             job.percent = 100
             job.message = "Hoàn tất"

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio - AutoVideo</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=5">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+
+<body data-page="studio">
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div id="loader" aria-hidden="true"><div class="loader-title">AutoVideo</div><div class="loader-bar"><i></i></div></div>
+
+  <header class="topbar">
+    <a class="brand" href="/">AutoVideo</a>
+    <nav class="nav">
+      <a href="/">Tạo video</a>
+      <a href="/studio.html" aria-current="page">Studio</a>
+      <a href="/library.html">Thư viện</a>
+    </nav>
+    <button type="button" id="logout" class="btn btn-plain">Đăng xuất</button>
+  </header>
+
+  <main class="container wide studio">
+    <p id="page-error" class="error-text" role="alert" hidden></p>
+
+    <!-- 1. Danh sách dự án -->
+    <section id="view-list" class="stack" hidden>
+      <div class="stack-sm">
+        <h1>Studio</h1>
+        <p class="muted small">Ném ảnh và clip của bạn vào theo thứ tự tên tệp, thêm giọng thu âm hoặc lời thuyết minh cho từng cảnh,
+          rồi ghép thành video hoàn chỉnh có phụ đề, zoom, chuyển cảnh và nhạc nền.</p>
+      </div>
+      <button type="button" id="new-project" class="btn btn-primary">+ Dự án mới</button>
+      <p id="list-empty" class="muted" hidden>Chưa có dự án nào. Bấm “Dự án mới” để bắt đầu.</p>
+      <div id="project-list" class="project-list"></div>
+    </section>
+
+    <!-- 2. Soạn dự án -->
+    <section id="view-editor" class="stack" hidden>
+      <div class="editor-head">
+        <button type="button" id="back-btn" class="btn btn-plain">← Dự án</button>
+        <input type="text" id="p-name" maxlength="80" aria-label="Tên dự án" placeholder="Tên dự án">
+        <span id="save-state" class="muted small" role="status"></span>
+      </div>
+
+      <div class="settings">
+        <label>Khổ video
+          <select id="p-format">
+            <option value="vertical">Dọc 9:16</option>
+            <option value="horizontal">Ngang 16:9</option>
+            <option value="square">Vuông 1:1</option>
+          </select>
+        </label>
+        <label>Giọng đọc
+          <select id="p-voice">
+            <option value="vi-VN-HoaiMyNeural">Nữ - Hoài My</option>
+            <option value="vi-VN-NamMinhNeural">Nam - Nam Minh</option>
+          </select>
+        </label>
+        <label>Tốc độ đọc
+          <select id="p-rate">
+            <option value="-10%">Chậm</option>
+            <option value="+0%">Bình thường</option>
+            <option value="+10%">Hơi nhanh</option>
+            <option value="+20%">Nhanh</option>
+          </select>
+        </label>
+        <label>Chuyển cảnh
+          <select id="p-transition">
+            <option value="fade">Mượt (mờ dần)</option>
+            <option value="mixed">Đa dạng</option>
+            <option value="none">Cắt thẳng</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="music-row">
+        <label class="btn music-btn">
+          <input type="file" id="music-file" accept="audio/*,.mp3,.m4a,.wav" hidden>
+          <span id="music-label">+ Nhạc nền (tuỳ chọn)</span>
+        </label>
+        <button type="button" id="music-clear" class="btn btn-plain" hidden>Bỏ nhạc</button>
+        <label class="btn music-btn" title="File thứ n (xếp theo tên) vào cảnh thứ n">
+          <input type="file" id="voice-files" accept="audio/*,.mp3,.m4a,.wav" multiple hidden>
+          <span>+ Giọng thu âm (nhiều file, theo thứ tự cảnh)</span>
+        </label>
+        <audio id="music-audio" controls preload="none" hidden></audio>
+      </div>
+
+      <!-- Ném ảnh / clip vào đây -->
+      <label id="dropzone" class="dropzone" tabindex="0">
+        <input type="file" id="media-files" accept="image/*,video/*" multiple hidden>
+        <strong>Ném ảnh và clip vào đây</strong>
+        <span class="muted small">hoặc bấm để chọn nhiều tệp. Mỗi tệp thành một cảnh, xếp theo tên tệp. Có thể thả cả tệp nhạc để làm nhạc nền.</span>
+      </label>
+
+      <details class="script-all">
+        <summary>Dán cả lời thuyết minh để chia vào các cảnh</summary>
+        <div class="stack-sm">
+          <textarea id="script-all" rows="6" placeholder="Mỗi dòng là lời thuyết minh của một cảnh, theo đúng thứ tự cảnh. Máy sẽ đọc, hoặc dùng làm phụ đề nếu cảnh có giọng thu âm."></textarea>
+          <button type="button" id="split-btn" class="btn">Chia vào các cảnh</button>
+        </div>
+      </details>
+
+      <div id="scenes" class="scenes"></div>
+      <p id="scenes-empty" class="muted small" hidden>Chưa có cảnh nào. Tạo bằng AI hoặc ném ảnh/clip vào phía trên.</p>
+
+      <div class="compose-bar">
+        <span id="scene-count" class="muted small"></span>
+        <button type="button" id="add-empty" class="btn">+ Cảnh trống</button>
+        <button type="button" id="compose-btn" class="btn btn-primary">Ghép thành video</button>
+      </div>
+      <p id="editor-error" class="error-text" role="alert" hidden></p>
+    </section>
+
+    <!-- 3. Tiến độ ghép -->
+    <section id="view-progress" class="stack" hidden>
+      <div class="stack-sm">
+        <h1 id="progress-title">Đang ghép video</h1>
+        <p id="progress-topic" class="muted small"></p>
+      </div>
+      <ol class="steps" id="steps">
+        <li data-step="voicing"><span class="dot"></span>Tạo giọng đọc từng cảnh</li>
+        <li data-step="fetching_footage"><span class="dot"></span>Lấy ảnh và clip</li>
+        <li data-step="rendering"><span class="dot"></span>Dựng cảnh, chuyển cảnh và phụ đề</li>
+        <li data-step="uploading"><span class="dot"></span>Nén và lưu video</li>
+      </ol>
+      <div class="stack-sm">
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-row">
+          <span id="progress-message" class="muted" role="status"></span>
+          <span id="progress-percent" class="percent muted">0%</span>
+        </div>
+      </div>
+      <div id="fail-box" class="stack" hidden>
+        <p id="fail-message" class="error-text" role="alert"></p>
+        <div class="actions">
+          <button type="button" id="retry-btn" class="btn btn-primary">Thử lại</button>
+          <button type="button" id="discard-btn" class="btn">Quay lại dự án</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Kết quả -->
+    <section id="view-result" class="stack" hidden>
+      <h1 id="result-title"></h1>
+      <video id="result-video" class="player" controls playsinline preload="metadata"></video>
+      <div class="actions">
+        <a id="result-download" class="btn btn-primary" href="#">Tải MP4</a>
+        <button type="button" id="result-back" class="btn">Quay lại dự án</button>
+      </div>
+      <p class="muted small">Video đã được lưu trong <a href="/library.html">Thư viện</a>.</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/common.js?v=3"></script>
+  <script src="/js/studio.js?v=1"></script>
+  <script type="module" src="/js/world.js?v=2"></script>
+</body>
+
+</html>

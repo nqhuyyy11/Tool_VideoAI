@@ -84,3 +84,21 @@ function showPageError(message) {
   el.textContent = message;
   el.hidden = !message;
 }
+
+// Gửi nguyên một tệp lên backend (không bọc JSON). Dùng cho ảnh/clip/nhạc của Studio.
+async function apiUpload(path, file) {
+  const client = await initSupabase();
+  const { data } = await client.auth.getSession();
+  if (!data.session) {
+    location.replace('/login.html');
+    throw new Error('Bạn chưa đăng nhập.');
+  }
+  const res = await fetch(path + '?name=' + encodeURIComponent(file.name), {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + data.session.access_token, 'Content-Type': 'application/octet-stream' },
+    body: file,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(typeof body.detail === 'string' ? body.detail : 'Tải lên thất bại (mã ' + res.status + ').');
+  return body;
+}
