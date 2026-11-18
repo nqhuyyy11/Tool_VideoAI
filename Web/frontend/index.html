@@ -6,10 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tạo video - AutoVideo</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/css/style.css?v=3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=4">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
 
-<body>
+<body data-page="create">
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div id="loader" aria-hidden="true"><div class="loader-title">AutoVideo</div><div class="loader-bar"><i></i></div></div>
   <header class="topbar">
     <a class="brand" href="/">AutoVideo</a>
     <nav class="nav">
@@ -159,6 +165,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/common.js"></script>
   <script src="/js/create.js"></script>
+  <script type="module" src="/js/world.js?v=1"></script>
 </body>
 
 </html>
